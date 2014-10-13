@@ -3,6 +3,7 @@ import sys
 import Image
 import colorsys
 from optparse import OptionParser
+from skimage.color import rgb2lab, lab2rgb
 
 def get_N_colors(N=5):
 	HSV_tuples = [(x*1.0/N, 0.5, 0.5) for x in xrange(N)]
@@ -58,6 +59,9 @@ if __name__ == '__main__':
 		with open(filename, 'r') as f:
 			for line in f:
 				v = line.split()
+				print v[2]
+				print v[3]
+				print v[4]
 				l.append((int(v[2]), int(v[3]), int(v[4])))
 
 	else:
@@ -65,4 +69,4 @@ if __name__ == '__main__':
 
 	im = Image.new('RGB', (dx, dy))
 	im.putdata(l)
-	im.save(filename + '.png')
+	im.save(filename.split('.')[0] + '.png')

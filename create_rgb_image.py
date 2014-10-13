@@ -65,4 +65,4 @@ if __name__ == '__main__':
 
 	im = Image.new('RGB', (dx, dy))
 	im.putdata(l)
-	im.save(filename + '.png')
+	im.save(filename.split('.')[0] + '.png')
