@@ -1,0 +1,7 @@
+function [] = main(filename, k, resultname, n)
+    file = importdata(filename);
+    w = SparseMatrix(file, n);
+    k=str2num(k)
+    result = SpectralClustering(w,k,1);
+    dlmwrite(resultname,result);
+end

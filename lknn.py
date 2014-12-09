@@ -1,5 +1,6 @@
 import sys
 from linecache import getline
+import numpy as np
 
 def read_knn(arq, k, v_idx):
 	#print linecache.getline(your_file.txt, randomLineNumber) # Note: first line is 1, not 0
@@ -26,13 +27,13 @@ def read_labels(arq):
 			s.add(int(line))
 	return s
 
-def create_KnnMutuo(arq, k, n):
+def create_KnnMutuo(neig_mmap, k, n):
 	l = []
 	for v in xrange(n):
 		l_knnM = []
-		l_knn = read_knn(arq, k, v)
+		l_knn = neig_mmap[v][1:k]  	# read_knn(arq, k, v)
 		for nn in l_knn:
-			l_nn = read_knn(arq,k,nn)
+			l_nn = neig_mmap[nn][1:k]		 # read_knn(arq,k,nn)
 			if v in l_nn:
 				l_knnM.append(nn)
 		l.append(l_knnM)
@@ -54,6 +55,9 @@ def label_KNN(k, v, label, l_knnM, v_dists, label_dists):
 
 	return l
 
+def load_memmap(filename, nrows, ncolumns):
+	return np.memmap(filename, dtype='float32', mode='r', shape=(nrows,ncolumns))
+
 if __name__ == '__main__':
 
 	n = int(sys.argv[1])	# numero de vertices
@@ -69,21 +73,27 @@ if __name__ == '__main__':
 
 	set_labels = read_labels(arq_labels)
 
-	print 'Associando rotulo as vertices...'
+	dist_mmap = load_memmap(arq_dist, n, n)
+	neig_mmap = load_memmap(arq_knn, n, n)
+
+	print 'Associando vertices aos rotulos mais proximos...'
 	l_n_label = []
 	for v in xrange(n):
-		l_v_dist = read_dist_file(arq_dist, v)
+		print v
 		r_dist = dict()
+		min_dist = float("inf")
+		min_v_label = 0
 		for v_label in set_labels:
-			r_dist[v_label] = l_v_dist[v_label]
+			r_dist = dist_mmap[v][v_label]
+			if r_dist < min_dist:
+				min_dist = r_dist
+				min_v_label = v_label
 
-		s = sorted(r_dist.items(), key=lambda x:x[1])
-		v_label = s[0][0]
-		l_n_label.append(v_label)
+		l_n_label.append(min_v_label)
 	print 'OK'
 
 	print 'Criando Knn Mutuo...'
-	knnM = create_KnnMutuo(arq_knn, k1, n)
+	knnM = create_KnnMutuo(neig_mmap, k1, n)
 	print 'OK'
 
 	print 'Calculando Knn Mutuo rotulado'
@@ -93,8 +103,8 @@ if __name__ == '__main__':
 			print v
 		l_knnM = knnM[v]
 		v_label = l_n_label[v]
-		l_v_dist = read_dist_file(arq_dist, v)
-		l_label_dist = read_dist_file(arq_dist, v_label)
+		l_v_dist = dist_mmap[v] 	# read_dist_file(arq_dist, v)
+		l_label_dist = dist_mmap[v_label]			# read_dist_file(arq_dist, v_label)
 		l_label_Knn = label_KNN(k2, v, v_label, l_knnM, l_v_dist, l_label_dist)
 		l.append(l_label_Knn)
 	print 'OK'

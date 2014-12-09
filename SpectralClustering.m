@@ -28,6 +28,8 @@ D    = sparse(1:size(W, 1), 1:size(W, 2), degs);
 
 % compute unnormalized Laplacian
 L = D - W;
+alpha = 0.0001;
+L = L + alpha*eye(size(L,1));
 
 % compute normalized Laplacian if needed
 switch Type

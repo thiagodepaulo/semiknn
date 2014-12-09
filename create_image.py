@@ -65,4 +65,5 @@ if __name__ == '__main__':
 
 	im = Image.new('RGB', (dx, dy))
 	im.putdata(l)
+	print 'saving image %s.png' %filename
 	im.save(filename + '.png')

@@ -1,29 +1,37 @@
 #!/usr/bin/env bash
 
 # image file
-image_arq=""
-xyrgb_arq=""
+image_arq="false"
+xyrgb_arq="false"
+labels_arq="false"
 # k do KNN Mutuo
 k1=""
 # k do knn com rotulos
 k2=""
+# number of clusters
+num_clusters=0
 
-usage() { echo "Usage: $0 -i <image file> -1 k1 -2 k2 [-x <xy_rgb file>] " 1>&2; exit 1; }
+usage() { echo "Usage: $0 -i <image file> -l <labels file> -c <number of clusters> -1 k1 -2 k2 [-x <xy_rgb file>] " 1>&2; exit 1; }
 
-
-while getopts 'ix12' flag; do
+while getopts 'i:x:1:2:l:c:' flag; do
   case "${flag}" in
     i) image_arq="${OPTARG}" ;;
     x) xyrgb_arq="${OPTARG}" ;;
+    l) labels_arq="${OPTARG}" ;;
     1) k1="${OPTARG}" ;;
     2) k2="${OPTARG}" ;;
+    c) num_clusters="${OPTARG}" ;;	
     *) usage ;; 
   esac
 done
 
+if $num_cluster == 0; then echo "define number of clusters"; exit; fi
+if [ ! -e $image_arq ]; then echo "File not found: $image_arq"; exit; fi
+if [ ! -e $labels_arq ]; then echo "File not found: $label_arq"; exit; fi
+
 if [ ! -e $xyrgb_arq ];
 then
-	echo "creating xyrgb file..."
+	echo "creating xyrgb file... $image_arq"
 	xyrgb_arq=${image_arq}.xyrgb ;
 	python rgb-convert.py -f $image_arq -o $xyrgb_arq ;	
 	echo "DONE: $xyrgb_arq"
@@ -32,7 +40,6 @@ fi
 #
 xyrgb_arq_name=$(basename $xyrgb_arq)
 xyrgb_dir_name=$(dirname $xyrgb_arq)
-labels_arq=$4
 # arquivo com as distancias (distancias nao ordenada)
 dist_arq=${xyrgb_dir_name}"/dist_"${xyrgb_arq_name}
 # arquivo com indice dos knn mais proximos (ordenados por proximidade)
@@ -57,8 +64,8 @@ echo "DONE: $g_arq"
 
 # do spectral clustering -- matlab code!
 echo "doing spectral clustering...."
-cluster_arq=${xyrgb_dir_name}"/cluster_"${k1}"_"${k2}"_"${xyrgb_arq_name}
-matlab -nojvm -nodisplay -nosplash -r "main('$g_arq','$cluster_arq',$n);quit()"
+cluster_arq=${xyrgb_dir_name}"/cluster_"${num_clusters}"_"${k1}"_"${k2}"_"${xyrgb_arq_name}
+matlab -nojvm -nodisplay -nosplash -r "main('$g_arq',$num_clusters,'$cluster_arq',$n); quit()"
 echo "DONE: $cluster_arq"
 
 #dimension of x-axis
