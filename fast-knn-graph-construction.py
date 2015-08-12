@@ -12,6 +12,8 @@ import os
 import random
 import time
 
+# le arquivo com os rotulos para cada vertice
+# saida: lista de vertices, dicionario <vertice, rotulo>
 def read_labels(arq):
 	l = []
 	d = dict()
@@ -26,6 +28,7 @@ def read_labels(arq):
 
 mylock = threading.RLock()
 
+# busca os vizinhos rotulados mais proximos
 def aux_calc(vertex_set, graph, labeled, tree, sender):
 	# atribui para os rotulados mais proximos
 	buff = dict()	
@@ -103,12 +106,12 @@ if __name__ == '__main__':
 
 	(options, args) = parser.parse_args()
 	filename = options.filename
-	k = int(options.k)
-	k2 = int(options.semik)
-	labels_filename = options.labels
+	k = int(options.k)			# k1
+	k2 = int(options.semik)			# k2
+	labels_filename = options.labels	# vertices rotulados
 	out_filename = options.out_filename
 	n_threads = int(options.nthreads)
-	c = int(options.nclusters)
+	c = int(options.nclusters)		# numero de clusters
 
 	if filename is None:
 		parser.error("required -f [filename] arg.")
@@ -157,6 +160,8 @@ if __name__ == '__main__':
 	# atribui para os rotulados mais proximos
 	# print "procurando rotulados mais proximos"
 	
+	# divide em subconjuntos de vertices pelo numero de threads
+	# subconjunto de vertices (V = {V_1, ..., V_{n_threads})
 	part = len(graph.vs())/n_threads	
 
 	# ******************************************
