@@ -1,1 +1,1 @@
-for (( k1 = 60; k1 < 500; k1=k1+10 )); do for (( k2 = 50; k2 < $k1; k2=k2+10 )); do echo "rodando para $k1 e $k2";  ./fast_geral.sh -i ../label_propag_testes/Avestruz.jpg -l ../label_propag_testes/av.ui1.labels -c 5 -1 $k1 -2 $k2 -t 8 ;  done done 
+for (( k1 = 500; k1 <= 500; k1=k1+50 )); do for (( k2 = 50; k2 < $k1; k2=k2+50 )); do echo "rodando para $k1 e $k2";  ./super_fast_geral.sh -i ../label_propag_testes/Avestruz.jpg -l ../label_propag_testes/av.ui1.labels -c 5 -1 $k1 -2 $k2 -t 8 ;  done done 

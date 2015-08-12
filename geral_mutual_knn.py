@@ -32,7 +32,7 @@ labels_dir_name=$(dirname $labels_arq)
 
 echo "creating semisupervised graph..."
 cluster_arq=${labels_dir_name}"/cluster_"${num_clusters}"_"${k1}"_"${k2}"_"${labels_arq_name}
-python knn.py -f $image_arq -1 $k1 -l $labels_arq -o $cluster_arq -t $num_threads -c $num_clusters
+python mutual_knn.py -f $image_arq -1 $k1 -l $labels_arq -o $cluster_arq -t $num_threads -c $num_clusters
 echo "DONE: $cluster_arq"
 
 #is_connected=$(python graph_is_connected.py $g_arq)

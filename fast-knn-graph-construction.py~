@@ -10,6 +10,7 @@ from Queue import Queue
 from multiprocessing import Process, Pipe
 import os
 import random
+import time
 
 def read_labels(arq):
 	l = []
@@ -121,6 +122,9 @@ if __name__ == '__main__':
 	im = Image.open(filename)
 	pix = im.load()
 	x, y, r, g, b = [], [], [], [], []
+
+	t0 = time.time()
+	
 	for j in range(0,im.size[1]):
 		for i in range(0,im.size[0]):
 			graph.add_vertex()
@@ -137,7 +141,7 @@ if __name__ == '__main__':
 			g.append(pix[i,j][1])
 			b.append(pix[i,j][2])
 
-	print "criou grafo"
+	# print "criou grafo"
 
 	x = np.array(x)
 	y = np.array(y)
@@ -145,13 +149,13 @@ if __name__ == '__main__':
 	g = np.array(g)
 	b = np.array(b)
 	tree = spatial.KDTree(zip(x.ravel(), y.ravel(), r.ravel(), g.ravel(), b.ravel()))
-	print "criou kdtree"
+	# print "criou kdtree"
 
 	# labeled set
 	labeled, map_labels = read_labels(labels_filename)
 		
 	# atribui para os rotulados mais proximos
-	print "procurando rotulados mais proximos"
+	# print "procurando rotulados mais proximos"
 	
 	part = len(graph.vs())/n_threads	
 
@@ -187,12 +191,17 @@ if __name__ == '__main__':
 	edges = []
 	weights = []
 	for receiver in lq:
-		print 'calling receiver'
+		# print 'calling receiver'
 		l_ew = receiver.recv()
-		print 'retornou'
+		# print 'retornou'
 		for edge, weight in l_ew:
 			edges += [edge]
 			weights.append(weight)
+
+	# write time
+	t1 = time.time()
+	with open('time','a') as f:
+		f.write('%f\t%f\t%f\tgct' %(k, k2, (t1 - t0)))	
 
 	print len(edges), len(weights)
 	print out_filename
@@ -218,8 +227,13 @@ if __name__ == '__main__':
 
 #	cl = graph.community_fastgreedy()
 #	membership = cl.as_clustering(2).membership
-			
+
+	t0 = time.time()
 	menbership = graph.community_label_propagation(weights="weight", initial=init_l,fixed=fixed_l)
+	# write time
+	t1 = time.time()
+	with open('time','a') as f:
+		f.write('%f\t%f\t%f\tlpt' %(k, k2, (t1 - t0)))				
 
 	ass = dict()	
 	for cluster_id in xrange(len(menbership)):
@@ -229,7 +243,7 @@ if __name__ == '__main__':
 	print 'escrevendo cluster to %s' %out_filename
 	with open(out_filename,'w') as f:
 		for v in xrange(len(ass)):
-			f.write(str(ass[v]+1)+'\n')		
+			f.write(str(ass[v]+1)+'\n')
 
 #	f = open(out_filename, 'w')
 #	for edge in graph.es():

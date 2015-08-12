@@ -10,6 +10,7 @@ from Queue import Queue
 from multiprocessing import Process, Pipe
 import os
 import random
+import time
 
 def read_labels(arq):
 	l = []
@@ -51,7 +52,7 @@ def aux_calc(vertex_set, graph, labeled, tree, sender):
 
 def cal_NN(vertex_set, tree, k1, k2, buff, sender, dic_nn):
 
-	print k2
+	#print k2
 	l = []	
 	for v in vertex_set:		
 		if v.index % 10000 == 0:
@@ -82,7 +83,7 @@ def cal_NN(vertex_set, tree, k1, k2, buff, sender, dic_nn):
 			else:	
 				break
 			count+=1
-	print 'sending %d' %len(l)	
+	#print 'sending %d' %len(l)	
 	sender.send(l)
 					
 
@@ -121,6 +122,12 @@ if __name__ == '__main__':
 	im = Image.open(filename)
 	pix = im.load()
 	x, y, r, g, b = [], [], [], [], []
+
+	# labeled set
+	labeled, map_labels = read_labels(labels_filename)
+
+	t0 = time.time()
+	
 	for j in range(0,im.size[1]):
 		for i in range(0,im.size[0]):
 			graph.add_vertex()
@@ -137,7 +144,7 @@ if __name__ == '__main__':
 			g.append(pix[i,j][1])
 			b.append(pix[i,j][2])
 
-	print "criou grafo"
+	# print "criou grafo"
 
 	x = np.array(x)
 	y = np.array(y)
@@ -145,13 +152,10 @@ if __name__ == '__main__':
 	g = np.array(g)
 	b = np.array(b)
 	tree = spatial.KDTree(zip(x.ravel(), y.ravel(), r.ravel(), g.ravel(), b.ravel()))
-	print "criou kdtree"
-
-	# labeled set
-	labeled, map_labels = read_labels(labels_filename)
+	# print "criou kdtree"
 		
 	# atribui para os rotulados mais proximos
-	print "procurando rotulados mais proximos"
+	# print "procurando rotulados mais proximos"
 	
 	part = len(graph.vs())/n_threads	
 
@@ -187,12 +191,17 @@ if __name__ == '__main__':
 	edges = []
 	weights = []
 	for receiver in lq:
-		print 'calling receiver'
+		# print 'calling receiver'
 		l_ew = receiver.recv()
-		print 'retornou'
+		# print 'retornou'
 		for edge, weight in l_ew:
 			edges += [edge]
 			weights.append(weight)
+
+	# write time
+	t1 = time.time()
+	with open('time','a') as f:
+		f.write('%f\t%f\t%f\tgct\n' %(k, k2, (t1 - t0)))	
 
 	print len(edges), len(weights)
 	print out_filename
@@ -218,8 +227,13 @@ if __name__ == '__main__':
 
 #	cl = graph.community_fastgreedy()
 #	membership = cl.as_clustering(2).membership
-			
+
+	t0 = time.time()
 	menbership = graph.community_label_propagation(weights="weight", initial=init_l,fixed=fixed_l)
+	# write time
+	t1 = time.time()
+	with open('time_gbili','a') as f:
+		f.write('%f\t%f\t%f\tlpt\n' %(k, k2, (t1 - t0)))				
 
 	ass = dict()	
 	for cluster_id in xrange(len(menbership)):

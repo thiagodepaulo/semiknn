@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-usage() { echo "Usage: $0 -i <image file> -l <labels file> -c <number of clusters> -1 k1 -2 k2 [ -t <number of threads> ] " 1>&2; exit 1; }
+usage() { echo "Usage: $0 -i <image file> -l <labels file> -c <number of clusters> -1 k1 [ -t <number of threads> ] " 1>&2; exit 1; }
 
 image_arq=false
 labels_arq=false
@@ -23,7 +23,7 @@ done
 
 if [ ! -e $image_arq ]; then echo "Image File not found: $image_arq"; exit; fi
 if [ ! -e $labels_arq ]; then echo "Labels File not found: $label_arq"; exit; fi
-if [ $num_cluster = 0 ]; then echo "undefined number of clusters"; exit; fi
+if [ $num_cluster == 0 ]; then echo "undefined number of clusters"; exit; fi
 
 # arquivo com o grafo criado
 labels_arq_name=$(basename $labels_arq)
